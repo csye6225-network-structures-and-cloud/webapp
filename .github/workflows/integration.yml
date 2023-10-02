@@ -29,7 +29,6 @@ jobs:
           java-version: 17
           distribution: 'adopt'
           cache: maven
-      - name: webapplication directory
-        run: cd webapplication
       - name: Build with Maven
+        working-directory: ./webapplication
         run: mvn clean install
