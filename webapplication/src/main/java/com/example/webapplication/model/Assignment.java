@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -22,18 +23,21 @@ public class Assignment {
     @JdbcTypeCode(SqlTypes.CHAR)
     private UUID id;
 
+    @NotNull
     @Column(name = "name")
     private String name;
+    @NotNull
+
     @Min(1)
     @Max(10)
     @Column(name="points")
     private Integer points;
-
+    @NotNull
     @Min(1)
     @Max(3)
     @Column(name = "num_of_attempts")
     private Integer num_of_attempts;
-
+    @NotNull
     @Column(name = "deadline")
     private LocalDateTime deadline;
 
