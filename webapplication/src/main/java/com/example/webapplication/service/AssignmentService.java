@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class AssignmentService {
@@ -29,9 +31,13 @@ public class AssignmentService {
             throw new AssignmentValidationException("Assignment points must be between 1 and 10.");
         }
 
+
+
         if (assignment.getNum_of_attempts() < 1 || assignment.getNum_of_attempts() > 3) {
             throw new AssignmentValidationException("Assignment attempts must be between 1 and 3.");
         }
+
+
 
         User user = userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
@@ -45,17 +51,29 @@ public class AssignmentService {
     }
 
     public List<Assignment> getAllAssignmentsForUser(String userEmail) {
-        User user = userRepository.findUserByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        User user = userRepository.findUserByEmail(userEmail).orElseThrow(() -> new ForbiddenException("records are access to only existing users"));
         return assignmentRepository.findAllByCreatedByUser(user);
     }
 
     public Assignment getAssignmentByIdAndUser(UUID id, String userEmail) {
         User user = userRepository.findUserByEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         Assignment assignment = assignmentRepository.findById(id).orElse(null);
-        if (assignment != null && !assignment.getCreatedByUser().equals(user)) {
+        if (assignment != null &&  assignment.getCreatedByUser()==null && !assignment.getCreatedByUser().equals(user)) {
             throw new ForbiddenException("You are not authorized to access this assignment");
         }
         return assignment;
+    }
+
+
+    public List<Assignment> getAllAssignments() {
+        Iterable<Assignment> assignments = assignmentRepository.findAll();
+        return StreamSupport.stream(assignments.spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    public Assignment getAssignmentById(UUID id) {
+        return assignmentRepository.findById(id).orElseThrow(() -> new AssignmentNotFoundException("Assignment not found."));
     }
 
     public Assignment updateAssignmentByIdAndUser(UUID id, Assignment updatedAssignment, String userEmail) {
@@ -116,6 +134,8 @@ public class AssignmentService {
             super(message);
         }
     }
+
+
 
 
 

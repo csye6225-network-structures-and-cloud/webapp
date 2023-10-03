@@ -5,6 +5,7 @@ import com.example.webapplication.model.User;
 import com.example.webapplication.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +23,25 @@ public class DBBootstrapService {
     @Autowired
     private AssignmentService assignmentService;
 
+    @Value("${app.environment}")
+    private String environment;
     @PostConstruct
     public void init() {
         try {
+
+            String csvFilePath;
+
+            if ("local".equalsIgnoreCase(environment)) {
+                // If the file is in resources/opt directory of your project
+                csvFilePath = new ClassPathResource("opt/users.csv").getFile().getAbsolutePath();
+            } else { // Assuming it's production
+                csvFilePath = "/opt/users.csv";
+            }
+
             // If the file is in resources/opt directory of your project
-            String csvFilePath = new ClassPathResource("opt/users.csv").getFile().getAbsolutePath();
+
+
+//                    = new ClassPathResource("opt/users.csv").getFile().getAbsolutePath();
 
             userService.createUsersFromCSV(csvFilePath);
 

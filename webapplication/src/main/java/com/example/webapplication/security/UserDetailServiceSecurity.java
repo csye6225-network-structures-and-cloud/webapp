@@ -3,6 +3,7 @@ package com.example.webapplication.security;
 
 import com.example.webapplication.model.User;
 import com.example.webapplication.repository.UserRepository;
+import com.example.webapplication.service.AssignmentService;
 import com.example.webapplication.service.CustomUserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +21,7 @@ public class UserDetailServiceSecurity implements UserDetailsService {
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findUserByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new AssignmentService.ForbiddenException("User not found"));
         return new CustomUserDetail(user); // Use the CustomUserDetails here
     }
 }
