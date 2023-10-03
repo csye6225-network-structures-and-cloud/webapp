@@ -1,7 +1,7 @@
 name: Workflow Integration Testing
 
 on:
-  pull_request:
+  pull_request: #pull request on main
     branches: [ main ]
 
 jobs:
