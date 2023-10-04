@@ -2,9 +2,9 @@
 - This project provides a RESTful API for managing user assignments built using Spring Boot.
 
 ## Prerequisites
-Java 17: Ensure Java Development Kit (JDK) 17 is installed.
-Maven: This project uses the Maven build system.
-PostgreSQL: A running instance is required for bootstrapping and integration tests.
+- Java 17: Ensure Java Development Kit (JDK) 17 is installed.
+- Maven: This project uses the Maven build system.
+- PostgreSQL: A running instance is required for bootstrapping and integration tests.
 
 
 ## Setup & Installation
@@ -50,4 +50,14 @@ PostgreSQL: A running instance is required for bootstrapping and integration tes
 - scp "C:\config\db.properties" root@143.110.158.115:/opt/
 
 - sudo rm -rf /opt/Cloud/ -  to delete existing unzipped folder
-- sudo rm -rf /Cloudapplication.zip 
+- sudo rm -rf /Cloudapplication.zip
+
+- psql -U superuser_name -d database_name
+- psql -U postgres -d userdata -  to enter the db 
+- -l - to list databases
+- -dt - to list tables
+- \c  userdata - to connect to db
+- \dp userdata - to see the permissions
+- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO userdata;
+- DROP table userdata CASCADE;
+- DROP table assignmentdata CASCADE
