@@ -31,4 +31,5 @@ jobs:
           cache: maven
       - name: Build with Maven
         working-directory: ./webapplication
-        run: mvn clean install
+        run: mvn clean test
+
