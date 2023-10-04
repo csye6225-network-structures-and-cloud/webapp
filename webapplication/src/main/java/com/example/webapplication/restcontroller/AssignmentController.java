@@ -46,8 +46,10 @@ public class AssignmentController {
             return null; // Return null after setting the response directly
         }
 
+
         String username = loggedUser.split(" ")[0];
         String password = loggedUser.split(" ")[1];
+
 
         String userEmail = username;
         System.out.println("userEmail : " + userEmail);
@@ -136,6 +138,7 @@ public class AssignmentController {
                     .header("X-Content-Type-Options", "nosniff")
                     .build();
         }
+
 
         try {
             String userEmail = userDetails.getUsername();

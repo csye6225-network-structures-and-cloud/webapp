@@ -34,10 +34,12 @@ public class DBBootstrapService {
 
             if ("local".equalsIgnoreCase(environment)) {
                 // If the file is in resources/opt directory of your project
-                csvFilePath = new ClassPathResource("opt/users.csv").getFile().getAbsolutePath();
+
+                csvFilePath = new ClassPathResource("opt/user.csv").getFile().getAbsolutePath();
                 userService.createUsersFromCSV(csvFilePath);
             } else { // Assuming it's production
-                userService.createUsersFromCSV("/opt/users.csv");
+                userService.createUsersFromCSV("/opt/user.csv");
+
             }
 
 

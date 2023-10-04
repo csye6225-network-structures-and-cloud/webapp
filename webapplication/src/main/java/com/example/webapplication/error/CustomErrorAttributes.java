@@ -17,7 +17,8 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
         // Remove unwanted attributes for 401 error
         if (errorAttributes.get("status").equals(401)) {
             errorAttributes.clear();
-            errorAttributes.put("message", "You are not authorized to access this resource");
+            errorAttributes.put("message", "You are not an authorized user to access this resource");
+
         }
 
         return errorAttributes;
