@@ -18,6 +18,7 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
         if (errorAttributes.get("status").equals(401)) {
             errorAttributes.clear();
             errorAttributes.put("message", "You are not an authorized user to access this resource");
+
         }
 
         return errorAttributes;
