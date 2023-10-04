@@ -45,7 +45,6 @@ public class AssignmentController {
             response.getWriter().close();
             return null; // Return null after setting the response directly
         }
-
         String username = loggedUser.split(" ")[0];
         String password = loggedUser.split(" ")[1];
 
@@ -136,6 +135,7 @@ public class AssignmentController {
                     .header("X-Content-Type-Options", "nosniff")
                     .build();
         }
+
         try {
             String userEmail = userDetails.getUsername();
             boolean isDeleted = assignmentService.deleteAssignmentByIdAndUser(id, userEmail);
@@ -152,6 +152,7 @@ public class AssignmentController {
         } catch (AssignmentService.AssignmentNotFoundException ex) {
             return ResponseEntity.notFound().build();
         } catch (Exception ex) {
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
