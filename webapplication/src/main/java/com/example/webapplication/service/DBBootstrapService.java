@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 
 @Service
@@ -34,16 +35,11 @@ public class DBBootstrapService {
             if ("local".equalsIgnoreCase(environment)) {
                 // If the file is in resources/opt directory of your project
                 csvFilePath = new ClassPathResource("opt/users.csv").getFile().getAbsolutePath();
+                userService.createUsersFromCSV(csvFilePath);
             } else { // Assuming it's production
-                csvFilePath = "/opt/users.csv";
+                userService.createUsersFromCSV("/opt/users.csv");
             }
 
-            // If the file is in resources/opt directory of your project
-
-
-//                    = new ClassPathResource("opt/users.csv").getFile().getAbsolutePath();
-
-            userService.createUsersFromCSV(csvFilePath);
 
         } catch (IOException e) {
 

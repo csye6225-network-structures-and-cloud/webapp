@@ -128,7 +128,15 @@ public class AssignmentController {
     // Delete Assignment by ID
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAssignment(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Void> deleteAssignment(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails, @RequestBody(required = false) String body) {
+        if (body != null && !body.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                    .header("Pragma", "no-cache")
+                    .header("X-Content-Type-Options", "nosniff")
+                    .build();
+        }
+
         try {
             String userEmail = userDetails.getUsername();
             boolean isDeleted = assignmentService.deleteAssignmentByIdAndUser(id, userEmail);
@@ -145,10 +153,13 @@ public class AssignmentController {
         } catch (AssignmentService.AssignmentNotFoundException ex) {
             return ResponseEntity.notFound().build();
         } catch (Exception ex) {
-            // This is a generic catch-all. You can refine this further based on the exceptions thrown by your service layer.
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+
+
+    //Custom Exception Handling
 
     @ExceptionHandler(AssignmentService.AssignmentValidationException.class)
     public ResponseEntity<String> handleAssignmentValidationException(AssignmentService.AssignmentValidationException ex) {
