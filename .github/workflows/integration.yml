@@ -32,4 +32,3 @@ jobs:
       - name: Build with Maven
         working-directory: ./webapplication
         run: mvn clean test
-

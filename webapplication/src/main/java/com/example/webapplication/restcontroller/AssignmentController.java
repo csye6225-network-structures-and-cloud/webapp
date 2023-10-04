@@ -45,8 +45,11 @@ public class AssignmentController {
             response.getWriter().close();
             return null; // Return null after setting the response directly
         }
+
+
         String username = loggedUser.split(" ")[0];
         String password = loggedUser.split(" ")[1];
+
 
         String userEmail = username;
         System.out.println("userEmail : " + userEmail);
