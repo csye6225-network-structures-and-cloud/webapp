@@ -54,8 +54,8 @@
 
 - psql -U superuser_name -d database_name
 - psql -U postgres -d userdata -  to enter the db 
-- -l - to list databases
-- -dt - to list tables
+- \l - to list databases
+- \dt - to list tables
 - \c  userdata - to connect to db
 - \dp userdata - to see the permissions
 - GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO userdata;
