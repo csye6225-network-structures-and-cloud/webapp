@@ -34,7 +34,7 @@ jobs:
           cache: maven
       - name: Build with Maven
         working-directory: ./webapplication
-        run: mvn clean test
+        run: mvn clean install
       - name: Setup `packer`
         uses: hashicorp/setup-packer@main
         id: setup
@@ -46,6 +46,7 @@ jobs:
       - name: Packer Format Check
         working-directory: ./AMI
         run: packer fmt -check .
+
       - name: Packer Template Validate
         working-directory: ./AMI
         run: packer validate .
