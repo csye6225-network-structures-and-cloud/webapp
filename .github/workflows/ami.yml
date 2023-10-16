@@ -1,0 +1,72 @@
+name: ami
+
+on:
+  push: #pull request on main
+    branches: [ main ]
+
+jobs:
+  build_and_test_java:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: ${{ secrets.DB_USERNAME }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: userdata
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'adopt'
+          cache: maven
+      - name: Build with Maven
+        working-directory: ./webapplication
+        run: mvn clean test
+
+  build_ami:
+    needs: build_and_test_java
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install AWSCLI
+        run: sudo pip install awscli
+
+      - name: Configure AWS DEV
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@main
+        with:
+          version: "latest"
+
+      - name: Initialize Packer Init
+        working-directory: ./AMI
+        run: packer init .
+
+      - name: Build AMI
+        working-directory: ./AMI
+        run: packer build --var-file=ami.pkrvars.hcl ami.pkr.hcl
+
+#      - name: Extract AMI ID from manifest
+#        working-directory: ./AMI
+#        run: |
+#            AMI_ID=$(jq -r '.builds[-1].artifact_id|split(":")[1]' ./manifest.json)
+#            echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+#
+#      - name: Share AMI with DEMO Account
+#        run: |
+#          aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "Add=[{UserId=${{secrets.DEMO_ACCOUNT_ID}}}]"
