@@ -3,6 +3,12 @@ name: Workflow Integration Testing
 on:
   pull_request: #pull request on main
     branches: [ main ]
+    paths:
+      - 'webapp/**'
+      - '.github/workflows/packer.yml'
+
+env:
+  PRODUCT_VERSION: "latest"
 
 jobs:
   build_and_test_java:
@@ -32,3 +38,14 @@ jobs:
       - name: Build with Maven
         working-directory: ./webapplication
         run: mvn clean test
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
+        with:
+          version: ${{ env.PRODUCT_VERSION }}
+      - name: Packer Format Check
+        working-directory: ./AMI
+        run: packer fmt -check .
+      - name: Packer Template Validate
+        working-directory: ./AMI
+        run: packer validate .
