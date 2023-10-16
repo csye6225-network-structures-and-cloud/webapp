@@ -40,6 +40,9 @@ jobs:
         id: setup
         with:
           version: ${{ env.PRODUCT_VERSION }}
+      - name: Initialize Packer Init
+        working-directory: ./AMI
+        run: packer init .
       - name: Packer Format Check
         working-directory: ./AMI
         run: packer fmt -check .

@@ -61,12 +61,12 @@ jobs:
         working-directory: ./AMI
         run: packer build --var-file=ami.pkrvars.hcl ami.pkr.hcl
 
-      - name: Extract AMI ID from manifest
-        working-directory: ./AMI
-        run: |
-            AMI_ID=$(jq -r '.builds[-1].artifact_id|split(":")[1]' ./manifest.json)
-            echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
-
-      - name: Share AMI with DEMO Account
-        run: |
-          aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "Add=[{UserId=${{secrets.DEMO_ACCOUNT_ID}}}]"
+#      - name: Extract AMI ID from manifest
+#        working-directory: ./AMI
+#        run: |
+#            AMI_ID=$(jq -r '.builds[-1].artifact_id|split(":")[1]' ./manifest.json)
+#            echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+#
+#      - name: Share AMI with DEMO Account
+#        run: |
+#          aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "Add=[{UserId=${{secrets.DEMO_ACCOUNT_ID}}}]"

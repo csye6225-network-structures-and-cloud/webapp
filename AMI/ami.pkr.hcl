@@ -31,8 +31,8 @@ variable "ami_prefix" {
 }
 
 variable "ami_user" {
-  type    = list(string)
-  default = ["102806823271", "494954498426"]
+  type    = string
+  default = "494954498426"
 }
 
 variable "profile" {
@@ -58,7 +58,7 @@ source "amazon-ebs" "my-ami" {
   ami_name        = "${var.ami_prefix}-${local.timestamp}"
   ami_description = "AMI for CSYE 6225 Cloud"
   ami_regions     = "${var.ami_regions}"
-  ami_users       = "${var.ami_user}"
+  ami_users       = ["${var.ami_user}"]
   #  ssh_keypair_name   = "id_rsa"
   #  ssh_private_key_file = "~/.ssh/id_rsa"
 
