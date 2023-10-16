@@ -30,7 +30,7 @@ jobs:
           cache: maven
       - name: Build with Maven
         working-directory: ./webapplication
-        run: mvn clean test
+        run: mvn clean install
 
   build_ami:
     needs: build_and_test_java
