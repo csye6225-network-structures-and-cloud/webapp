@@ -59,8 +59,8 @@ source "amazon-ebs" "my-ami" {
   ami_description = "AMI for CSYE 6225 Cloud"
   ami_regions     = "${var.ami_regions}"
   ami_users       = "${var.ami_user}"
-#  ssh_keypair_name   = "id_rsa"
-#  ssh_private_key_file = "~/.ssh/id_rsa"
+  #  ssh_keypair_name   = "id_rsa"
+  #  ssh_private_key_file = "~/.ssh/id_rsa"
 
   aws_polling {
     delay_seconds = 120
@@ -114,10 +114,10 @@ build {
   }
 
   provisioner "shell" {
-      inline = [
-        "sudo mv /home/admin/start.sh /var/lib/cloud/scripts/per-boot/",
-        "sudo chmod +x /var/lib/cloud/scripts/per-boot/start.sh"]
-    }
+    inline = [
+      "sudo mv /home/admin/start.sh /var/lib/cloud/scripts/per-boot/",
+    "sudo chmod +x /var/lib/cloud/scripts/per-boot/start.sh"]
+  }
   #destination = "/var/lib/cloud/scripts/per-boot/"
   post-processor "manifest" {
     output     = "manifest.json"
