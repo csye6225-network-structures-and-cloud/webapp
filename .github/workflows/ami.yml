@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build_and_test_java:
+  build_ami:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -32,14 +32,6 @@ jobs:
         working-directory: ./webapplication
         run: mvn clean install
 
-  build_ami:
-    needs: build_and_test_java
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Build with Maven
-        working-directory: ./webapplication
-        run: mvn clean install
       - name: Install AWSCLI
         run: sudo pip install awscli
 
