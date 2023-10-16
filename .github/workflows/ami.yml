@@ -37,7 +37,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
+      - name: Build with Maven
+        working-directory: ./webapplication
+        run: mvn clean install
       - name: Install AWSCLI
         run: sudo pip install awscli
 
