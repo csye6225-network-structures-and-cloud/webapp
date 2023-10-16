@@ -3,9 +3,6 @@ name: Workflow Integration Testing
 on:
   pull_request: #pull request on main
     branches: [ main ]
-    paths:
-      - 'webapp/**'
-      - '.github/workflows/packer.yml'
 
 env:
   PRODUCT_VERSION: "latest"
