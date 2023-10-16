@@ -50,3 +50,4 @@ jobs:
       - name: Packer Template Validate
         working-directory: ./AMI
         run: packer validate .
+
