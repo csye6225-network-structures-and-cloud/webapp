@@ -116,7 +116,7 @@ build {
   provisioner "shell" {
     inline = [
       "sudo mv /home/admin/start.sh /var/lib/cloud/scripts/per-boot/",
-    "sudo chmod +x /var/lib/cloud/scripts/per-boot/start.sh"]
+      "sudo chmod +x /var/lib/cloud/scripts/per-boot/start.sh"]
   }
   #destination = "/var/lib/cloud/scripts/per-boot/"
   post-processor "manifest" {
