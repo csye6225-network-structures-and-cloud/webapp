@@ -1,10 +1,12 @@
 package com.example.webapplication.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -24,6 +26,8 @@ public class Assignment {
     private UUID id;
 
     @NotNull
+    @NotBlank
+    @JsonFormat(pattern = "^[^0-9]*$", shape = JsonFormat.Shape.STRING)
     @Column(name = "name")
     private String name;
     @NotNull

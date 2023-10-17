@@ -35,7 +35,12 @@ public class AssignmentController {
     @PostMapping
     public ResponseEntity<?> createAssignment(@RequestBody Assignment assignment, HttpServletRequest request, HttpServletResponse response) throws Exception {
         try {
-        String loggedUser = authenticatedUser(request);
+
+            if (assignment.getName() != null && assignment.getName().matches("\\d+")) {
+                throw new IllegalArgumentException("Name cannot be a number");
+            }
+
+            String loggedUser = authenticatedUser(request);
 
         // Check if user is not authorized
         if (loggedUser == null || loggedUser.split(" ").length != 2) {
@@ -55,7 +60,11 @@ public class AssignmentController {
         System.out.println("userEmail : " + userEmail);
         Assignment createdAssignment = assignmentService.createAssignment(userEmail, assignment);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdAssignment);
-        } catch (Exception ex) {
+        } catch (IllegalArgumentException ex) {
+            // Specific catch for the IllegalArgumentException for better error messaging
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        catch (Exception ex) {
             // This is a generic catch-all. You can refine this further based on the exceptions thrown by your service layer.
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
@@ -113,6 +122,11 @@ public class AssignmentController {
     @PutMapping("/{id}")
     public ResponseEntity<Assignment> updateAssignment(@PathVariable UUID id, @RequestBody Assignment updatedAssignment, @AuthenticationPrincipal UserDetails userDetails) {
         try {
+
+
+            if (updatedAssignment.getName() != null && updatedAssignment.getName().matches("\\d+")) {
+                throw new IllegalArgumentException("Name cannot be a number");
+            }
             String userEmail = userDetails.getUsername();
             Assignment assignment = assignmentService.updateAssignmentByIdAndUser(id, updatedAssignment, userEmail);
             return ResponseEntity.ok(assignment);
@@ -121,7 +135,11 @@ public class AssignmentController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         } catch (AssignmentService.AssignmentNotFoundException ex) {
             return ResponseEntity.notFound().build();
-        } catch (Exception ex) {
+        }
+        catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+         catch (Exception ex) {
             // Generic error handler; refine this based on exceptions you expect from your service layer
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }

@@ -26,6 +26,7 @@ public class AssignmentService {
 
     public Assignment createAssignment(String email, Assignment assignment){
 
+
         // These conditions were incorrect; corrected to check ranges
         if (assignment.getPoints() < 1 || assignment.getPoints() > 10) {
             throw new AssignmentValidationException("Assignment points must be between 1 and 10.");
