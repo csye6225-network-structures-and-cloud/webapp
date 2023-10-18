@@ -61,3 +61,5 @@
 - GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO userdata;
 - DROP table userdata CASCADE;
 - DROP table assignmentdata CASCADE
+
+### AMI creation using Packer 
