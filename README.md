@@ -62,4 +62,6 @@
 - DROP table userdata CASCADE;
 - DROP table assignmentdata CASCADE
 
+
 ### AMI creation using Packer integration
+
