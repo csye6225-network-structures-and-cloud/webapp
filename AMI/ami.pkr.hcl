@@ -90,6 +90,7 @@ build {
     destination = "/home/admin/"
   }
 
+
   provisioner "file" {
     source      = "../webapplication/src/main/resources/opt/user.csv"
     destination = "/home/admin/"
