@@ -87,9 +87,8 @@ build {
 
   provisioner "file" {
     source      = "../webapplication/target/webapplication-0.0.1-SNAPSHOT.jar"
-    destination = "/home/admin/"
-  
-
+    destination = "/home/admin/"  
+  }
   provisioner "file" {
     source      = "../webapplication/src/main/resources/opt/user.csv"
     destination = "/home/admin/"
