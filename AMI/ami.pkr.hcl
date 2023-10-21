@@ -85,7 +85,7 @@ build {
     "source.amazon-ebs.my-ami"
   ]
 
-  provisioner "file" {
+    provisioner "file" {
     source      = "../webapplication/target/webapplication-0.0.1-SNAPSHOT.jar"
     destination = "/home/admin/"
   }
