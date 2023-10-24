@@ -63,3 +63,5 @@
 - DROP table assignmentdata CASCADE
 
 ### AMI creation using Packer 
+
+
