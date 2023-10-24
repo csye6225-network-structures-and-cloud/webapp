@@ -64,4 +64,3 @@
 
 ### AMI creation using Packer 
 
-
