@@ -102,6 +102,13 @@ build {
   }
 
   provisioner "shell" {
+    inline = [
+      "sudo touch /home/admin/application.properties",
+      "sudo chmod 764 /home/admin/application.properties",
+    ]
+  }
+
+  provisioner "shell" {
     scripts = ["setup.sh"]
     environment_vars = [
       "DEBIAN_FRONTEND=noninteractive",
@@ -110,15 +117,27 @@ build {
   }
 
   provisioner "file" {
-    source      = "start.sh"
-    destination = "/home/admin/"
+    source      = "myapp.service"
+    destination = "/tmp/myapp.service"
   }
 
   provisioner "shell" {
     inline = [
-      "sudo mv /home/admin/start.sh /var/lib/cloud/scripts/per-boot/",
-    "sudo chmod +x /var/lib/cloud/scripts/per-boot/start.sh"]
+      "sudo mv /tmp/myapp.service /etc/systemd/system/",
+      "sudo systemctl enable myapp.service"
+    ]
   }
+
+  #  provisioner "file" {
+  #    source      = "start.sh"
+  #    destination = "/home/admin/"
+  #  }
+  #
+  #  provisioner "shell" {
+  #    inline = [
+  #      "sudo mv /home/admin/start.sh /var/lib/cloud/scripts/per-boot/",
+  #    "sudo chmod +x /var/lib/cloud/scripts/per-boot/start.sh"]
+  #  }
   #destination = "/var/lib/cloud/scripts/per-boot/"
   post-processor "manifest" {
     output     = "manifest.json"

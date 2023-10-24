@@ -30,7 +30,7 @@ jobs:
           cache: maven
       - name: Build with Maven
         working-directory: ./webapplication
-        run: mvn clean install
+        run: mvn clean install   # integration testing
 
       - name: Install AWSCLI
         run: sudo pip install awscli
