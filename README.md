@@ -63,4 +63,5 @@
 - DROP table assignmentdata CASCADE
 
 ### AMI creation using Packer 
+### Systemd creation and RDS working
 
