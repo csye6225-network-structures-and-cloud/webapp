@@ -32,6 +32,8 @@ sudo mv /home/admin/user.csv /opt/
 
 sudo mv /home/admin/db.properties /opt/
 
+sudo mv /home/admin/webapplication-0.0.1-SNAPSHOT.jar /opt/
+
 # Alter the postgres user password
 
 #sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
