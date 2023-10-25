@@ -1,5 +1,6 @@
 package com.example.webapplication.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -38,9 +39,11 @@ public class User implements Serializable {
     @NotBlank(message = "Email should not be empty")
     @Column(name = "email", unique = true)
     private String email;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @Column(name = "account_created")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime account_created;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @Column(name = "account_updated")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime account_updated;

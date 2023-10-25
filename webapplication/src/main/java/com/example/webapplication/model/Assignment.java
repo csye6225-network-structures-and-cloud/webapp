@@ -41,13 +41,17 @@ public class Assignment {
     @Max(3)
     @Column(name = "num_of_attempts")
     private Integer num_of_attempts;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @NotNull
     @Column(name = "deadline")
     private LocalDateTime deadline;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @Column(name = "assignment_created")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime assignment_created;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @Column(name = "assignment_updated")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private LocalDateTime assignment_updated;
