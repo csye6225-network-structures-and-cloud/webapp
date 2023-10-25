@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,8 +45,8 @@ public class AssignmentService {
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         // No need to re-set the assignment properties as they come in the request
-        assignment.setAssignment_created(LocalDateTime.now());
-        assignment.setAssignment_updated(LocalDateTime.now());
+        assignment.setAssignment_created(LocalDateTime.now(ZoneOffset.UTC));
+        assignment.setAssignment_updated(LocalDateTime.now(ZoneOffset.UTC));
         assignment.setCreatedByUser(user);
 
         return assignmentRepository.save(assignment);
@@ -96,7 +97,7 @@ public class AssignmentService {
         existingAssignment.setPoints(updatedAssignment.getPoints());
         existingAssignment.setNum_of_attempts(updatedAssignment.getNum_of_attempts());
         existingAssignment.setDeadline(updatedAssignment.getDeadline());
-        existingAssignment.setAssignment_updated(LocalDateTime.now());
+        existingAssignment.setAssignment_updated(LocalDateTime.now(ZoneOffset.UTC));
 
         return assignmentRepository.save(existingAssignment);
     }
