@@ -24,12 +24,12 @@ sudo apt install maven -y
 #sudo systemctl start postgresql
 #sudo systemctl enable postgresql
 
-
 ls
 
 sudo mv /home/admin/user.csv /opt/
 
 sudo mv /home/admin/db.properties /opt/
+
 
 # Alter the postgres user password
 #sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"

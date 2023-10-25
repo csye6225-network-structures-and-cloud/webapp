@@ -4,6 +4,7 @@ After=network.target cloud-init.service
 
 [Service]
 Type=simple
+
 User=myuser
 WorkingDirectory=/opt
 ExecStart= java -jar /opt/cloud/webapplication-0.0.1-SNAPSHOT.jar --spring.profiles.active=production --spring.config.location=file:///opt/cloud/application.properties
