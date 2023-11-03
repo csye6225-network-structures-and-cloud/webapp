@@ -101,6 +101,11 @@ build {
     destination = "/home/admin/"
   }
 
+  provisioner "file" {
+    source      = "cloudwatch-config.json"
+    destination = "/home/admin/"
+  }
+
   provisioner "shell" {
     inline = [
       "sudo touch /home/admin/application.properties",
