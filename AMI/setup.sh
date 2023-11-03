@@ -50,7 +50,6 @@ sudo systemctl enable amazon-cloudwatch-agent
 
 
 
-
 # Alter the postgres user password
 #sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
 #
