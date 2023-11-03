@@ -1,5 +1,6 @@
 package com.example.webapplication.restcontroller;
 
+import com.timgroup.statsd.StatsDClient;
 import org.springframework.validation.ObjectError;
 import com.example.webapplication.model.Assignment;
 import com.example.webapplication.service.AssignmentService;
@@ -32,8 +33,12 @@ public class AssignmentController {
     @Autowired
     private AssignmentService assignmentService;
 
+    @Autowired
+    private StatsDClient metricsClient;
+
     @PostMapping
     public ResponseEntity<?> createAssignment(@RequestBody Assignment assignment, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        metricsClient.incrementCounter("endpoint./v1/.assignments.http.post");
         try {
 
             if (assignment.getName() != null && assignment.getName().matches("\\d+")) {
@@ -74,6 +79,7 @@ public class AssignmentController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<Assignment>> getAllAssignments(@AuthenticationPrincipal UserDetails userDetails, @RequestBody(required = false) String body) {
+        metricsClient.incrementCounter("endpoint./v1/.assignments.http.get");
         if (body != null && !body.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -97,6 +103,7 @@ public class AssignmentController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<Assignment> getAssignmentById(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails, @RequestBody(required = false) String body) {
+        metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.get");
         if (body != null && !body.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -121,6 +128,8 @@ public class AssignmentController {
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
     public ResponseEntity<Assignment> updateAssignment(@PathVariable UUID id, @RequestBody Assignment updatedAssignment, @AuthenticationPrincipal UserDetails userDetails) {
+        metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.put");
+
         try {
 
 
@@ -149,6 +158,8 @@ public class AssignmentController {
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAssignment(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails, @RequestBody(required = false) String body) {
+
+        metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.delete");
         if (body != null && !body.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Cache-Control", "no-cache, no-store, must-revalidate")
