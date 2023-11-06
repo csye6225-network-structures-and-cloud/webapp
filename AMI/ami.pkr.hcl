@@ -94,11 +94,7 @@ build {
   provisioner "file" {
     source      = "../webapplication/src/main/resources/opt/user.csv"
     destination = "/home/admin/"
-  }
 
-  provisioner "file" {
-    source      = "db.properties"
-    destination = "/home/admin/"
   }
 
   provisioner "file" {
@@ -106,12 +102,12 @@ build {
     destination = "/home/admin/"
   }
 
-  provisioner "shell" {
-    inline = [
-      "sudo touch /home/admin/application.properties",
-      "sudo chmod 764 /home/admin/application.properties",
-    ]
-  }
+  #    provisioner "shell" {
+  #      inline = [
+  #        "sudo touch /home/admin/application.properties",
+  #        "sudo chmod 764 /home/admin/application.properties",
+  #      ]
+  #    }
 
   provisioner "shell" {
     scripts = ["setup.sh"]
