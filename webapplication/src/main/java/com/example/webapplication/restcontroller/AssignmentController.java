@@ -1,6 +1,11 @@
 package com.example.webapplication.restcontroller;
 
 import com.timgroup.statsd.StatsDClient;
+
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.validation.ObjectError;
 import com.example.webapplication.model.Assignment;
 import com.example.webapplication.service.AssignmentService;
@@ -30,6 +35,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/v1/assignments")
 public class AssignmentController {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(AssignmentController.class);
+
     @Autowired
     private AssignmentService assignmentService;
 
@@ -42,6 +49,7 @@ public class AssignmentController {
         try {
 
             if (assignment.getName() != null && assignment.getName().matches("\\d+")) {
+                LOGGER.error("Name should not be null and integer");
                 throw new IllegalArgumentException("Name cannot be a number");
             }
 
@@ -49,6 +57,7 @@ public class AssignmentController {
 
         // Check if user is not authorized
         if (loggedUser == null || loggedUser.split(" ").length != 2) {
+            LOGGER.warn("Unauthorized attempt to create assignment by user: {}", loggedUser);
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.getWriter().write(""); // Ensure empty content
             response.getWriter().flush();
@@ -64,6 +73,7 @@ public class AssignmentController {
         String userEmail = username;
         System.out.println("userEmail : " + userEmail);
         Assignment createdAssignment = assignmentService.createAssignment(userEmail, assignment);
+            LOGGER.info("Assignment created successfully");
             return ResponseEntity.status(HttpStatus.CREATED).body(createdAssignment);
         } catch (IllegalArgumentException ex) {
             // Specific catch for the IllegalArgumentException for better error messaging
@@ -90,12 +100,16 @@ public class AssignmentController {
 
         try {
             List<Assignment> assignments = assignmentService.getAllAssignments();
+            LOGGER.info("Assignments retrieved successfully");
             return ResponseEntity.ok(assignments);
         } catch (AssignmentService.AssignmentValidationException | AssignmentService.UserNotFoundException ex) {
+            LOGGER.error("Assignments validation Exception");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (AssignmentService.ForbiddenException ex) {
+            LOGGER.error("User Forbidden");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         } catch (AssignmentService.AssignmentNotFoundException ex) {
+            LOGGER.error("Assignment Not Found ");
             return ResponseEntity.notFound().build();
         }
     }
@@ -105,6 +119,7 @@ public class AssignmentController {
     public ResponseEntity<Assignment> getAssignmentById(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails, @RequestBody(required = false) String body) {
         metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.get");
         if (body != null && !body.isEmpty()) {
+            LOGGER.error("Body should be empty");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Cache-Control", "no-cache, no-store, must-revalidate")
                     .header("Pragma", "no-cache")
@@ -114,12 +129,16 @@ public class AssignmentController {
 
         try {
             Assignment assignment = assignmentService.getAssignmentById(id);
+            LOGGER.info("Assignment retrieved successfully");
             return ResponseEntity.ok(assignment);
         } catch (AssignmentService.AssignmentValidationException | AssignmentService.UserNotFoundException ex) {
+            LOGGER.error("Assignments validation Exception");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (AssignmentService.ForbiddenException ex) {
+            LOGGER.error("User Forbidden");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         } catch (AssignmentService.AssignmentNotFoundException ex) {
+            LOGGER.error("Assignment Not Found ");
             return ResponseEntity.notFound().build();
         }
     }
@@ -127,22 +146,25 @@ public class AssignmentController {
     // Update Assignment by ID
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<Assignment> updateAssignment(@PathVariable UUID id, @RequestBody Assignment updatedAssignment, @AuthenticationPrincipal UserDetails userDetails) {
+
+    public ResponseEntity<Void> updateAssignment(@PathVariable UUID id, @RequestBody Assignment updatedAssignment, @AuthenticationPrincipal UserDetails userDetails) {
+
+
         metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.put");
 
         try {
-
-
             if (updatedAssignment.getName() != null && updatedAssignment.getName().matches("\\d+")) {
                 throw new IllegalArgumentException("Name cannot be a number");
             }
             String userEmail = userDetails.getUsername();
             Assignment assignment = assignmentService.updateAssignmentByIdAndUser(id, updatedAssignment, userEmail);
-            return ResponseEntity.ok(assignment);
+            LOGGER.info("Assignment updated successfully");
+            return ResponseEntity.noContent().build();
 
         } catch (AssignmentService.ForbiddenException ex) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         } catch (AssignmentService.AssignmentNotFoundException ex) {
+            LOGGER.error("Assignment Not Found ");
             return ResponseEntity.notFound().build();
         }
         catch (IllegalArgumentException ex) {
@@ -176,15 +198,18 @@ public class AssignmentController {
                 return ResponseEntity.notFound().build();
             }
 
+            LOGGER.info("Assignment deleted successfully");
             return ResponseEntity.noContent().build();
         } catch (AssignmentService.UserNotFoundException ex) {
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         } catch (AssignmentService.ForbiddenException ex) {
+            LOGGER.error("User Forbidden");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         } catch (AssignmentService.AssignmentNotFoundException ex) {
             return ResponseEntity.notFound().build();
         } catch (Exception ex) {
-
+            LOGGER.error("Bad Request");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }

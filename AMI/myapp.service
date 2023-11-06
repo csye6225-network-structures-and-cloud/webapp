@@ -1,16 +1,17 @@
 [Unit]
 Description=My Web Application
-After=network.target cloud-init.service
+After=network.target
 
 [Service]
 Type=simple
+User=csye6225
+Group=csye6225
+WorkingDirectory=/opt/csye6225
+ExecStart= java -jar /opt/csye6225/webapplication-0.0.1-SNAPSHOT.jar --spring.profiles.active=production --spring.config.location=file:///opt/csye6225/application.properties
 
-User=myuser
-WorkingDirectory=/opt
-ExecStart= java -jar /opt/cloud/webapplication-0.0.1-SNAPSHOT.jar --spring.profiles.active=production --spring.config.location=file:///opt/cloud/application.properties
 Restart=always
 RestartSec=5
 
 [Install]
-WantedBy=cloud-init.service
+WantedBy=cloud-init.target
 
