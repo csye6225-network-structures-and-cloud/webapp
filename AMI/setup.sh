@@ -20,11 +20,13 @@ echo "Installing htop and other dependencies"
 sudo apt-get install -y htop
 
 echo "Installing CloudWatch Agent"
+
 sudo curl -o /root/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb
 sudo dpkg -i -E /root/amazon-cloudwatch-agent.deb
 
 sudo groupadd "csye6225"
 sudo useradd -s /bin/false -g "csye6225" -d "/opt/csye6225" -m "csye6225"
+
 
 echo "Configuring CloudWatch Agent"
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
@@ -34,6 +36,7 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
     -s
 
 # Remove the downloaded package to clean up space
+
 #echo "---x---Installing PostgreSQL---x---"
 #sudo apt install postgresql postgresql-contrib -y
 #
@@ -46,6 +49,7 @@ ls
 
 sudo mv /home/admin/user.csv /opt/
 sudo systemctl enable amazon-cloudwatch-agent
+
 
 # Alter the postgres user password
 #sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"

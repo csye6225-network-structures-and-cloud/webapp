@@ -5,6 +5,7 @@ import com.timgroup.statsd.StatsDClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.validation.ObjectError;
 import com.example.webapplication.model.Assignment;
 import com.example.webapplication.service.AssignmentService;
@@ -145,7 +146,9 @@ public class AssignmentController {
     // Update Assignment by ID
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
+
     public ResponseEntity<Void> updateAssignment(@PathVariable UUID id, @RequestBody Assignment updatedAssignment, @AuthenticationPrincipal UserDetails userDetails) {
+
 
         metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.put");
 
