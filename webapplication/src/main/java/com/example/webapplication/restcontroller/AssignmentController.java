@@ -90,12 +90,14 @@ public class AssignmentController {
     public ResponseEntity<List<Assignment>> getAllAssignments(@AuthenticationPrincipal UserDetails userDetails, @RequestBody(required = false) String body) {
         metricsClient.incrementCounter("endpoint./v1/.assignments.http.get");
         if (body != null && !body.isEmpty()) {
+            LOGGER.error("GET request contains a body, which is unexpected.");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Cache-Control", "no-cache, no-store, must-revalidate")
                     .header("Pragma", "no-cache")
                     .header("X-Content-Type-Options", "nosniff")
                     .build();
         }
+
 
         try {
             List<Assignment> assignments = assignmentService.getAllAssignments();
@@ -118,7 +120,7 @@ public class AssignmentController {
     public ResponseEntity<Assignment> getAssignmentById(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails, @RequestBody(required = false) String body) {
         metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.get");
         if (body != null && !body.isEmpty()) {
-            LOGGER.error("Body should be empty");
+            LOGGER.error("Body should be empty For a get request");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Cache-Control", "no-cache, no-store, must-revalidate")
                     .header("Pragma", "no-cache")
@@ -142,6 +144,7 @@ public class AssignmentController {
         }
     }
 
+
     // Update Assignment by ID
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
@@ -151,6 +154,7 @@ public class AssignmentController {
 
         try {
             if (updatedAssignment.getName() != null && updatedAssignment.getName().matches("\\d+")) {
+                LOGGER.error("Name should not be null and integer");
                 throw new IllegalArgumentException("Name cannot be a number");
             }
             String userEmail = userDetails.getUsername();
@@ -192,6 +196,7 @@ public class AssignmentController {
             boolean isDeleted = assignmentService.deleteAssignmentByIdAndUser(id, userEmail);
 
             if (!isDeleted) {
+                LOGGER.error("Assignment Not Found ");
                 return ResponseEntity.notFound().build();
             }
 
@@ -204,6 +209,7 @@ public class AssignmentController {
             LOGGER.error("User Forbidden");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         } catch (AssignmentService.AssignmentNotFoundException ex) {
+            LOGGER.error("Assignment Not Found ");
             return ResponseEntity.notFound().build();
         } catch (Exception ex) {
             LOGGER.error("Bad Request");
