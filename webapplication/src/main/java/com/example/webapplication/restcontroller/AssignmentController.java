@@ -5,6 +5,7 @@ import com.timgroup.statsd.StatsDClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.validation.ObjectError;
 import com.example.webapplication.model.Assignment;
 import com.example.webapplication.service.AssignmentService;
@@ -120,7 +121,9 @@ public class AssignmentController {
     public ResponseEntity<Assignment> getAssignmentById(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails, @RequestBody(required = false) String body) {
         metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.get");
         if (body != null && !body.isEmpty()) {
+
             LOGGER.error("Body should be empty For a get request");
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Cache-Control", "no-cache, no-store, must-revalidate")
                     .header("Pragma", "no-cache")
@@ -148,9 +151,11 @@ public class AssignmentController {
     // Update Assignment by ID
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
+
     public ResponseEntity<Void> updateAssignment(@PathVariable UUID id, @RequestBody Assignment updatedAssignment, @AuthenticationPrincipal UserDetails userDetails) {
 
         metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.put");
+
 
         try {
             if (updatedAssignment.getName() != null && updatedAssignment.getName().matches("\\d+")) {
