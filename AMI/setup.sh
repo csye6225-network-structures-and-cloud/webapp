@@ -27,7 +27,6 @@ sudo dpkg -i -E /root/amazon-cloudwatch-agent.deb
 sudo groupadd "csye6225"
 sudo useradd -s /bin/false -g "csye6225" -d "/opt/csye6225" -m "csye6225"
 
-
 echo "Configuring CloudWatch Agent"
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
     -a fetch-config \
@@ -36,13 +35,16 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
     -s
 
 # Remove the downloaded package to clean up space
-
 #echo "---x---Installing PostgreSQL---x---"
 #sudo apt install postgresql postgresql-contrib -y
 #
 ## Start and enable PostgreSQL to start on boot
 #sudo systemctl start postgresql
 #sudo systemctl enable postgresql
+
+
+sudo curl -o /root/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb
+sudo dpkg -i -E /root/amazon-cloudwatch-agent.deb
 
 
 ls

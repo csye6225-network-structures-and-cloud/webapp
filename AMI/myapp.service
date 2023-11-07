@@ -8,7 +8,6 @@ User=csye6225
 Group=csye6225
 WorkingDirectory=/opt/csye6225
 ExecStart= java -jar /opt/csye6225/webapplication-0.0.1-SNAPSHOT.jar --spring.profiles.active=production --spring.config.location=file:///opt/csye6225/application.properties
-
 Restart=always
 RestartSec=5
 
