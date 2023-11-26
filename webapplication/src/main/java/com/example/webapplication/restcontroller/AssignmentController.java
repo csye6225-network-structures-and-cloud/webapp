@@ -1,10 +1,18 @@
 package com.example.webapplication.restcontroller;
 
+import com.example.webapplication.model.Submission;
+import com.example.webapplication.repository.SubmissionRepository;
+import com.example.webapplication.service.SubmissionService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.timgroup.statsd.StatsDClient;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.ObjectError;
 import com.example.webapplication.model.Assignment;
 import com.example.webapplication.service.AssignmentService;
@@ -24,6 +32,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.security.access.AccessDeniedException;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,6 +46,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/v1/assignments")
 public class AssignmentController {
 
+    @Autowired
+    private SubmissionRepository submissionRepository;
+
+    @Autowired
+    private SubmissionService submissionService;
     private final static Logger LOGGER = LoggerFactory.getLogger(AssignmentController.class);
 
     @Autowired
@@ -183,6 +200,10 @@ public class AssignmentController {
     public ResponseEntity<Void> deleteAssignment(@PathVariable UUID id, @AuthenticationPrincipal UserDetails userDetails, @RequestBody(required = false) String body) {
 
         metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.delete");
+
+        if (submissionRepository.existsByAssignmentId(id)) {
+            throw new AssignmentService.AssignmentValidationException("Cannot delete assignment as there are submissions against it.");
+        }
         if (body != null && !body.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -190,7 +211,6 @@ public class AssignmentController {
                     .header("X-Content-Type-Options", "nosniff")
                     .build();
         }
-
         try {
             String userEmail = userDetails.getUsername();
             boolean isDeleted = assignmentService.deleteAssignmentByIdAndUser(id, userEmail);
@@ -199,11 +219,9 @@ public class AssignmentController {
                 LOGGER.error("Assignment Not Found ");
                 return ResponseEntity.notFound().build();
             }
-
             LOGGER.info("Assignment deleted successfully");
             return ResponseEntity.noContent().build();
         } catch (AssignmentService.UserNotFoundException ex) {
-
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         } catch (AssignmentService.ForbiddenException ex) {
             LOGGER.error("User Forbidden");
@@ -216,6 +234,30 @@ public class AssignmentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{id}/submission")
+    public ResponseEntity<?> submitAssignment(@PathVariable UUID id, @RequestBody String submissionData, @AuthenticationPrincipal UserDetails userDetails) {
+
+        metricsClient.incrementCounter("endpoint./v1/.assignments/.id.submission.http.post");
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(submissionData);
+            JsonNode submissionUrlNode = rootNode.get("submission_url");
+            String submissionUrl = submissionUrlNode != null ? submissionUrlNode.asText() : null;
+            Submission submission = submissionService.createSubmission(id, submissionUrl, userDetails.getUsername());
+            LOGGER.info("Submission Successful");
+            return ResponseEntity.status(HttpStatus.CREATED).body(submission);
+        } catch (IOException ex) {
+            LOGGER.error("Invalid submission data ");
+            return ResponseEntity.badRequest().body("Invalid submission data.");
+        } catch (SubmissionService.SubmissionException ex) {
+            LOGGER.error("Error: " + ex.getMessage());
+            return ResponseEntity.status(ex.getStatus()).body(ex.getMessage());
+        }
+    }
+
+
 
 
     //Custom Exception Handling
