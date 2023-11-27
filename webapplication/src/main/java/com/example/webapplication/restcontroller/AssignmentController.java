@@ -1,5 +1,4 @@
 package com.example.webapplication.restcontroller;
-
 import com.example.webapplication.model.Submission;
 import com.example.webapplication.repository.SubmissionRepository;
 import com.example.webapplication.service.SubmissionService;
@@ -44,14 +43,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/v1/assignments")
 public class AssignmentController {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(AssignmentController.class);
+
     @Autowired
     private SubmissionRepository submissionRepository;
 
     @Autowired
     private SubmissionService submissionService;
-    private final static Logger LOGGER = LoggerFactory.getLogger(AssignmentController.class);
-
-
 
     @Autowired
     private AssignmentService assignmentService;
@@ -161,13 +159,13 @@ public class AssignmentController {
         }
     }
 
+
     // Update Assignment by ID
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateAssignment(@PathVariable UUID id, @RequestBody Assignment updatedAssignment, @AuthenticationPrincipal UserDetails userDetails) {
 
         metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.put");
-
         try {
             if (updatedAssignment.getName() != null && updatedAssignment.getName().matches("\\d+")) {
                 LOGGER.error("Name should not be null and integer");
@@ -221,6 +219,7 @@ public class AssignmentController {
             LOGGER.info("Assignment deleted successfully");
             return ResponseEntity.noContent().build();
         } catch (AssignmentService.UserNotFoundException ex) {
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         } catch (AssignmentService.ForbiddenException ex) {
             LOGGER.error("User Forbidden");

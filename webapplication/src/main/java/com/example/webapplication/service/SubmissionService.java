@@ -145,10 +145,8 @@ public class SubmissionService {
         }
     }
 
+
     private void publishToSns(UUID assignmentId, Submission submission,String userEmail, SnsClient snsClient, String status, String errorMessage) {
-
-
-
         LOGGER.info("Inside sns");
         String message = null;
         ObjectMapper mapper = new ObjectMapper();
