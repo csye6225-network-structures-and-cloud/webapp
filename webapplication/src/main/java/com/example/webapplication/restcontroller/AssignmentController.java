@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.timgroup.statsd.StatsDClient;
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -51,7 +49,9 @@ public class AssignmentController {
 
     @Autowired
     private SubmissionService submissionService;
-    private final static Logger LOGGER = LoggerFactory.getLogger(SubmissionService.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AssignmentController.class);
+
+
 
     @Autowired
     private AssignmentService assignmentService;
