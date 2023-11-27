@@ -1,7 +1,7 @@
 # Webapp - RESTful API
 - This project provides a RESTful API for managing user assignments built using Spring Boot.
 
-## Prerequisites
+## Prerequisites test
 - Java 17: Ensure Java Development Kit (JDK) 17 is installed.
 - Maven: This project uses the Maven build system.
 - PostgreSQL: A running instance is required for bootstrapping and integration tests.
@@ -63,6 +63,11 @@
 - DROP table assignmentdata CASCADE
 
 ### AMI creation using Packer 
+### Systemd creation and RDS working
+
+
+###test
+
 
 
 
