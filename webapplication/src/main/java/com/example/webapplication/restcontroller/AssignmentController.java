@@ -161,7 +161,6 @@ public class AssignmentController {
         }
     }
 
-
     // Update Assignment by ID
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
