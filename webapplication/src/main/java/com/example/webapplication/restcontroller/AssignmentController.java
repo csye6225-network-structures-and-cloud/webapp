@@ -1,6 +1,4 @@
 package com.example.webapplication.restcontroller;
-
-
 import com.example.webapplication.model.Submission;
 import com.example.webapplication.repository.SubmissionRepository;
 import com.example.webapplication.service.SubmissionService;
@@ -138,7 +136,6 @@ public class AssignmentController {
         metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.get");
         if (body != null && !body.isEmpty()) {
             LOGGER.error("Body should be empty For a get request");
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Cache-Control", "no-cache, no-store, must-revalidate")
                     .header("Pragma", "no-cache")
@@ -166,12 +163,9 @@ public class AssignmentController {
     // Update Assignment by ID
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-
     public ResponseEntity<Void> updateAssignment(@PathVariable UUID id, @RequestBody Assignment updatedAssignment, @AuthenticationPrincipal UserDetails userDetails) {
 
-
         metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.put");
-
         try {
             if (updatedAssignment.getName() != null && updatedAssignment.getName().matches("\\d+")) {
                 LOGGER.error("Name should not be null and integer");
@@ -207,7 +201,6 @@ public class AssignmentController {
         if (submissionRepository.existsByAssignmentId(id)) {
             throw new AssignmentService.AssignmentValidationException("Cannot delete assignment as there are submissions against it.");
         }
-
         if (body != null && !body.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .header("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -223,7 +216,6 @@ public class AssignmentController {
                 LOGGER.error("Assignment Not Found ");
                 return ResponseEntity.notFound().build();
             }
-
             LOGGER.info("Assignment deleted successfully");
             return ResponseEntity.noContent().build();
         } catch (AssignmentService.UserNotFoundException ex) {
@@ -340,10 +332,5 @@ public class AssignmentController {
         return (userName + " " + passWord);
 
     }
-
-
-
-
-
 
 }

@@ -60,10 +60,9 @@ public class SubmissionService {
     public Submission createSubmission(UUID assignmentId, String submissionUrl, String userEmail ) throws SubmissionException {
 
         SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).build();
-        //SnsClient snsClient = SnsClient.builder().region(Region.of("us-east-1")).credentialsProvider(ProfileCredentialsProvider.builder().profileName("demo").build()).build();
+        //SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).credentialsProvider(ProfileCredentialsProvider.builder().profileName("demo").build()).build();
+        Submission submission = new Submission();
         try {
-            // Check assignment details, like num_of_attempts and deadline
-            Submission submission = new Submission();
             Assignment assignment = assignmentService.getAssignmentById(assignmentId);
             Assignment existingAssignment = assignmentRepository.findById(assignmentId).orElse(null);
 
@@ -75,11 +74,13 @@ public class SubmissionService {
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
             if (submissionUrl == null || submissionUrl.trim().isEmpty()) {
-                publishToSns(assignmentId, null, userEmail, snsClient, "FAILED");
+                String errMsg = "Submission File URL is required and should not be empty";
+                publishToSns(assignmentId, null, userEmail, snsClient, "FAILED",errMsg);
                 throw new SubmissionException("Submission URL is required.", HttpStatus.BAD_REQUEST);
             }
             if (!isValidUrl(submissionUrl)) {
-                publishToSns(assignmentId, null, userEmail,snsClient, "FAILED");
+                String errMsg = "Invalid submission URL: URL does not point to a ZIP file.";
+                publishToSns(assignmentId, null, userEmail,snsClient, "FAILED",errMsg);
                 throw new SubmissionException("Invalid submission URL", HttpStatus.BAD_REQUEST);
             }
             List<Submission> previousSubmissions = submissionRepository.findAllByAssignmentIdAndUser(assignmentId, user);
@@ -98,17 +99,20 @@ public class SubmissionService {
             }
 
             LOGGER.info("snsClient Initiated");
-            publishToSns(assignmentId, submission, userEmail, snsClient, "SUCCESS");
+            String message = "Submission is Successful";
+            publishToSns(assignmentId, submission, userEmail, snsClient, "SUCCESS", message);
             return submissionRepository.save(submission);
 
         } catch (AssignmentService.AssignmentNotFoundException ex) {
             LOGGER.error("Assignment Not Found");
-            publishToSns(assignmentId, null, userEmail, snsClient, "FAILED");
+            String errmessage = "Submitted Assignment is Not Found";
+            publishToSns(assignmentId, null, userEmail, snsClient, "FAILED",errmessage);
             throw new SubmissionException("Assignment Not Found", HttpStatus.NOT_FOUND);
         } catch (AssignmentService.AssignmentValidationException ex) {
             LOGGER.error("Validation failed");
-            publishToSns(assignmentId, null, userEmail,snsClient, "FAILED");
-            throw new SubmissionException("Validation Failed: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
+            String errmessage = "Submitted Assignment Validation is failed " + ex.getMessage();
+            publishToSns(assignmentId, submission, userEmail,snsClient, "FAILED",errmessage);
+            throw new SubmissionException("Submission Failed: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -130,33 +134,32 @@ public class SubmissionService {
             java.net.URL url = new URL(urlString);
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
             huc.setRequestMethod("HEAD");
-            huc.setConnectTimeout(100); // Set timeout as per your need
-            huc.setReadTimeout(100); // Set timeout as per your need
+            huc.setConnectTimeout(100);
+            huc.setReadTimeout(100);
             int responseCode = huc.getResponseCode();
-            // Check if response code is HTTP OK (200)
-            return (responseCode == HttpURLConnection.HTTP_OK);
+            boolean isHttpOk = responseCode == HttpURLConnection.HTTP_OK;
+            boolean isZipFile = urlString.endsWith(".zip");
+            return isHttpOk && isZipFile;
         } catch (IOException e) {
             return false;
         }
     }
 
-    private void publishToSns(UUID assignmentId, Submission submission,String userEmail, SnsClient snsClient, String status) {
 
-
-
+    private void publishToSns(UUID assignmentId, Submission submission,String userEmail, SnsClient snsClient, String status, String errorMessage) {
         LOGGER.info("Inside sns");
         String message = null;
         ObjectMapper mapper = new ObjectMapper();
         Map<String, String> messageMap = new HashMap<>();
         messageMap.put("status", status);
         messageMap.put("userEmail", userEmail);
-
         if (submission != null) {
             messageMap.put("submissionUrl", submission.getSubmissionUrl());
         } else {
-            messageMap.put("submissionUrl", "N/A");
+            messageMap.put("submissionUrl", "Invalid URL");
         }
         messageMap.put("assignmentId", assignmentId.toString());
+        messageMap.put("errorMessage", errorMessage);
 
         try {
             message = mapper.writeValueAsString(messageMap);
