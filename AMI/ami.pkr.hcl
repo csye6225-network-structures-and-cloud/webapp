@@ -109,7 +109,6 @@ build {
   #      ]
   #    }
 
-
   provisioner "shell" {
     scripts = ["setup.sh"]
     environment_vars = [

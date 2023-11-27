@@ -43,9 +43,6 @@ sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
 #sudo systemctl enable postgresql
 
 
-sudo curl -o /root/amazon-cloudwatch-agent.deb https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb
-sudo dpkg -i -E /root/amazon-cloudwatch-agent.deb
-
 
 ls
 
