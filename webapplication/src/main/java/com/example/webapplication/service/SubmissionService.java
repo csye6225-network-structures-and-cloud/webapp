@@ -63,8 +63,6 @@ public class SubmissionService {
         //SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).credentialsProvider(ProfileCredentialsProvider.builder().profileName("demo").build()).build();
         Submission submission = new Submission();
         try {
-
-
             Assignment assignment = assignmentService.getAssignmentById(assignmentId);
             Assignment existingAssignment = assignmentRepository.findById(assignmentId).orElse(null);
 
