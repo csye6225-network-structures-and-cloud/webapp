@@ -1,4 +1,5 @@
 package com.example.webapplication.restcontroller;
+
 import com.example.webapplication.model.Submission;
 import com.example.webapplication.repository.SubmissionRepository;
 import com.example.webapplication.service.SubmissionService;
@@ -166,6 +167,7 @@ public class AssignmentController {
     public ResponseEntity<Void> updateAssignment(@PathVariable UUID id, @RequestBody Assignment updatedAssignment, @AuthenticationPrincipal UserDetails userDetails) {
 
         metricsClient.incrementCounter("endpoint./v1/.assignments/.id.http.put");
+
         try {
             if (updatedAssignment.getName() != null && updatedAssignment.getName().matches("\\d+")) {
                 LOGGER.error("Name should not be null and integer");

@@ -116,6 +116,26 @@ public class SubmissionService {
         }
     }
 
+    private boolean isValidUrl(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            String contentType = url.openConnection().getContentType();
+            int contentLength = url.openConnection().getContentLength();
+
+            if (!"application/zip".equals(contentType) || contentLength == 0) {
+                LOGGER.info("/submission - bad request: submission URL does not return downloadable ZIP or ZIP is empty");
+                throw new AssignmentService.AssignmentValidationException("Submission URL does not return downloadable ZIP or ZIP is empty");
+
+            }
+            return true;
+        } catch (IOException e) {
+            LOGGER.error("Error checking URL", e);
+            throw new AssignmentService.AssignmentValidationException("Submission URL is not valid");
+
+        }
+    }
+
+
     public class SubmissionException extends Exception {
         private HttpStatus status;
 
@@ -126,22 +146,6 @@ public class SubmissionService {
 
         public HttpStatus getStatus() {
             return status;
-        }
-    }
-
-    private boolean isValidUrl(String urlString) {
-        try {
-            java.net.URL url = new URL(urlString);
-            HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-            huc.setRequestMethod("HEAD");
-            huc.setConnectTimeout(100);
-            huc.setReadTimeout(100);
-            int responseCode = huc.getResponseCode();
-            boolean isHttpOk = responseCode == HttpURLConnection.HTTP_OK;
-            boolean isZipFile = urlString.endsWith(".zip");
-            return isHttpOk && isZipFile;
-        } catch (IOException e) {
-            return false;
         }
     }
 
