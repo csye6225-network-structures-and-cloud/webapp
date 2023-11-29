@@ -51,8 +51,6 @@ public class AssignmentController {
     private SubmissionService submissionService;
     private final static Logger LOGGER = LoggerFactory.getLogger(AssignmentController.class);
 
-
-
     @Autowired
     private AssignmentService assignmentService;
 
@@ -84,7 +82,6 @@ public class AssignmentController {
 
         String username = loggedUser.split(" ")[0];
         String password = loggedUser.split(" ")[1];
-
 
         String userEmail = username;
         System.out.println("userEmail : " + userEmail);
