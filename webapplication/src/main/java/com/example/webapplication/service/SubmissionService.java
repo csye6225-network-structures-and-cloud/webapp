@@ -59,12 +59,16 @@ public class SubmissionService {
 
     public Submission createSubmission(UUID assignmentId, String submissionUrl, String userEmail ) throws SubmissionException {
 
-        SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).build();
-        //SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).credentialsProvider(ProfileCredentialsProvider.builder().profileName("demo").build()).build();
+        //SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).build();
+        SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).credentialsProvider(ProfileCredentialsProvider.builder().profileName("demo").build()).build();
         Submission submission = new Submission();
+
+        List<Submission> previousSubmissions = null;
+        int numOfPreviousSubmissions = 0;
         try {
             Assignment assignment = assignmentService.getAssignmentById(assignmentId);
             Assignment existingAssignment = assignmentRepository.findById(assignmentId).orElse(null);
+
 
             if (existingAssignment == null) {
                 throw new AssignmentService.AssignmentNotFoundException("Assignment not found.");
@@ -73,19 +77,23 @@ public class SubmissionService {
             User user = userRepository.findUserByEmail(userEmail)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+            previousSubmissions = submissionRepository.findAllByAssignmentIdAndUser(assignmentId, user);
+
+            numOfPreviousSubmissions = (previousSubmissions != null) ? previousSubmissions.size() : 0;
             if (submissionUrl == null || submissionUrl.trim().isEmpty()) {
                 String errMsg = "Submission File URL is required and should not be empty";
-                publishToSns(assignmentId, null, userEmail, snsClient, "FAILED",errMsg);
+                publishToSns(previousSubmissions.size(), assignmentId, null, userEmail, snsClient, "FAILED", errMsg);
                 throw new SubmissionException("Submission URL is required.", HttpStatus.BAD_REQUEST);
             }
             if (!isValidUrl(submissionUrl)) {
                 String errMsg = "Invalid submission URL: URL does not point to a ZIP file.";
-                publishToSns(assignmentId, null, userEmail,snsClient, "FAILED",errMsg);
+                publishToSns(previousSubmissions.size(), assignmentId, null, userEmail, snsClient, "FAILED", errMsg);
                 throw new SubmissionException("Invalid submission URL", HttpStatus.BAD_REQUEST);
             }
-            List<Submission> previousSubmissions = submissionRepository.findAllByAssignmentIdAndUser(assignmentId, user);
+
 
             System.out.println(previousSubmissions.size());
+
             if (previousSubmissions.size() >= assignment.getNum_of_attempts()) {
                 throw new AssignmentService.AssignmentValidationException("Exceeded the number of allowed attempts for this assignment");
             }
@@ -100,20 +108,21 @@ public class SubmissionService {
 
             LOGGER.info("snsClient Initiated");
             String message = "Submission is Successful";
-            publishToSns(assignmentId, submission, userEmail, snsClient, "SUCCESS", message);
+            publishToSns(previousSubmissions.size(), assignmentId, submission, userEmail, snsClient, "SUCCESS", message);
             return submissionRepository.save(submission);
 
         } catch (AssignmentService.AssignmentNotFoundException ex) {
             LOGGER.error("Assignment Not Found");
             String errmessage = "Submitted Assignment is Not Found";
-            publishToSns(assignmentId, null, userEmail, snsClient, "FAILED",errmessage);
+            publishToSns(numOfPreviousSubmissions, assignmentId, null, userEmail, snsClient, "FAILED", errmessage);
             throw new SubmissionException("Assignment Not Found", HttpStatus.NOT_FOUND);
         } catch (AssignmentService.AssignmentValidationException ex) {
             LOGGER.error("Validation failed");
             String errmessage = "Submitted Assignment Validation is failed " + ex.getMessage();
-            publishToSns(assignmentId, submission, userEmail,snsClient, "FAILED",errmessage);
+            publishToSns(previousSubmissions.size(), assignmentId, submission, userEmail, snsClient, "FAILED", errmessage);
             throw new SubmissionException("Submission Failed: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
         }
+
     }
 
     private boolean isValidUrl(String urlString) {
@@ -123,14 +132,14 @@ public class SubmissionService {
             int contentLength = url.openConnection().getContentLength();
 
             if (!"application/zip".equals(contentType) || contentLength == 0) {
-                LOGGER.info("/submission - bad request: submission URL does not return downloadable ZIP or ZIP is empty");
+                LOGGER.info("submission - bad request: submission URL does not return downloadable ZIP or ZIP is empty");
                 throw new AssignmentService.AssignmentValidationException("Submission URL does not return downloadable ZIP or ZIP is empty");
 
             }
             return true;
         } catch (IOException e) {
-            LOGGER.error("Error checking URL", e);
-            throw new AssignmentService.AssignmentValidationException("Submission URL is not valid");
+            LOGGER.error("Error checking URL");
+            return false;
 
         }
     }
@@ -152,7 +161,7 @@ public class SubmissionService {
 
 
 
-    private void publishToSns(UUID assignmentId, Submission submission,String userEmail, SnsClient snsClient, String status, String errorMessage) {
+    private void publishToSns(int attempts,UUID assignmentId, Submission submission,String userEmail, SnsClient snsClient, String status, String errorMessage) {
 
 
 
@@ -160,6 +169,7 @@ public class SubmissionService {
         String message = null;
         ObjectMapper mapper = new ObjectMapper();
         Map<String, String> messageMap = new HashMap<>();
+        messageMap.put("attempts", String.valueOf(attempts));
         messageMap.put("status", status);
         messageMap.put("userEmail", userEmail);
         if (submission != null) {
