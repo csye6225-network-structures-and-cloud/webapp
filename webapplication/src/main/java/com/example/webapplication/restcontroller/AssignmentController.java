@@ -44,6 +44,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/v1/assignments")
 public class AssignmentController {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(AssignmentController.class);
+
+    @Autowired
+    private SubmissionRepository submissionRepository;
+
+    @Autowired
+    private SubmissionService submissionService;
+
     @Autowired
     private SubmissionRepository submissionRepository;
 
@@ -158,6 +166,7 @@ public class AssignmentController {
         }
     }
 
+
     // Update Assignment by ID
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
@@ -218,6 +227,7 @@ public class AssignmentController {
             LOGGER.info("Assignment deleted successfully");
             return ResponseEntity.noContent().build();
         } catch (AssignmentService.UserNotFoundException ex) {
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         } catch (AssignmentService.ForbiddenException ex) {
             LOGGER.error("User Forbidden");
