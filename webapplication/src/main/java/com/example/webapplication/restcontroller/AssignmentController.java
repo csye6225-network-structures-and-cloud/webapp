@@ -98,7 +98,6 @@ public class AssignmentController {
         }
     }
 
-
     @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<Assignment>> getAllAssignments(@AuthenticationPrincipal UserDetails userDetails, @RequestBody(required = false) String body) {
