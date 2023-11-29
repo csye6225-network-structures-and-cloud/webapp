@@ -44,13 +44,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/v1/assignments")
 public class AssignmentController {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(AssignmentController.class);
-
     @Autowired
     private SubmissionRepository submissionRepository;
 
     @Autowired
     private SubmissionService submissionService;
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(AssignmentController.class);
 
     @Autowired
     private AssignmentService assignmentService;
@@ -84,7 +84,6 @@ public class AssignmentController {
         String username = loggedUser.split(" ")[0];
         String password = loggedUser.split(" ")[1];
 
-
         String userEmail = username;
         System.out.println("userEmail : " + userEmail);
         Assignment createdAssignment = assignmentService.createAssignment(userEmail, assignment);
@@ -99,7 +98,6 @@ public class AssignmentController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
-
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
