@@ -49,6 +49,7 @@ public class AssignmentController {
 
     @Autowired
     private SubmissionService submissionService;
+
     private final static Logger LOGGER = LoggerFactory.getLogger(AssignmentController.class);
 
     @Autowired
