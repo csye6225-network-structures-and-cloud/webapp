@@ -59,8 +59,8 @@ public class SubmissionService {
 
     public Submission createSubmission(UUID assignmentId, String submissionUrl, String userEmail ) throws SubmissionException {
 
-        SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).build();
-        //SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).credentialsProvider(ProfileCredentialsProvider.builder().profileName("demo").build()).build();
+        //SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).build();
+        SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).credentialsProvider(ProfileCredentialsProvider.builder().profileName("demo").build()).build();
         Submission submission = new Submission();
 
         List<Submission> previousSubmissions = null;
@@ -89,7 +89,7 @@ public class SubmissionService {
             }
             System.out.println(previousSubmissions.size());
             if (previousSubmissions.size() >= assignment.getNum_of_attempts()) {
-                throw new AssignmentService.AssignmentValidationException("Exceeded the number of allowed attempts for this assignment");
+                throw new AssignmentService.ForbiddenException("Exceeded the number of allowed attempts for this assignment");
             }
             submission.setAssignmentId(assignmentId);
             submission.setSubmissionUrl(submissionUrl);
@@ -100,18 +100,35 @@ public class SubmissionService {
             String message = "Submission is Successful";
 
             if (submission.getSubmissionDate().isAfter(assignment.getDeadline())) {
-                throw new AssignmentService.AssignmentValidationException("Submission deadline has passed.");
+                throw new AssignmentService.ForbiddenException("Submission deadline has passed.");
             }
             publishToSns(previousSubmissions.size(), assignmentId, submission, userEmail, snsClient, "SUCCESS", message);
             return submissionRepository.save(submission);
 
-        } catch (AssignmentService.AssignmentValidationException ex) {
-            LOGGER.error("Validation failed");
-            String errmessage = "Submitted Assignment Validation is failed " + ex.getMessage();
-            publishToSns(previousSubmissions.size(), assignmentId, submission, userEmail, snsClient, "FAILED", errmessage);
-            throw new SubmissionException("Submission Failed: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
+//        } catch (AssignmentService.AssignmentValidationException | AssignmentService.ForbiddenException ex) {
+//            LOGGER.error("Validation failed");
+//            String errmessage = "Submitted Assignment Validation is failed " + ex.getMessage();
+//            publishToSns(previousSubmissions.size(), assignmentId, submission, userEmail, snsClient, "FAILED", errmessage);
+//            throw new SubmissionException("Submission Failed: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
+//        }
         }
+            catch (Exception ex) {
+                String status = "FAILED";
+                HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
 
+                if (ex instanceof AssignmentService.ForbiddenException) {
+                    LOGGER.error(" Submission Forbidden " + ex.getMessage());
+                    status = "FAILED";
+                    httpStatus = HttpStatus.FORBIDDEN;
+                } else if (ex instanceof AssignmentService.AssignmentValidationException) {
+                    LOGGER.error("Validation failed: " + ex.getMessage());
+                    status = "FAILED";
+                    httpStatus = HttpStatus.BAD_REQUEST;
+                }
+                String errMessage = "Submission Failed: " + ex.getMessage();
+                publishToSns(previousSubmissions.size(), assignmentId, submission, userEmail, snsClient, status, errMessage);
+                throw new SubmissionException(errMessage, httpStatus);
+            }
     }
 
     private boolean isValidUrl(String urlString) {
