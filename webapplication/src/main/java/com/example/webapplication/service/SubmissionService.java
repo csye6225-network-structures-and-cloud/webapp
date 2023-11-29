@@ -65,6 +65,7 @@ public class SubmissionService {
 
         List<Submission> previousSubmissions = null;
         int numOfPreviousSubmissions = 0;
+
         try {
             Assignment assignment = assignmentService.getAssignmentById(assignmentId);
             Assignment existingAssignment = assignmentRepository.findById(assignmentId).orElse(null);
