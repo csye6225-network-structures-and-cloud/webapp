@@ -59,8 +59,8 @@ public class SubmissionService {
 
     public Submission createSubmission(UUID assignmentId, String submissionUrl, String userEmail ) throws SubmissionException {
 
-        //SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).build();
-        SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).credentialsProvider(ProfileCredentialsProvider.builder().profileName("demo").build()).build();
+        SnsClient snsClient = SnsClient.builder().region(Region.of(awsRegion)).build();
+
         Submission submission = new Submission();
 
         List<Submission> previousSubmissions = null;
