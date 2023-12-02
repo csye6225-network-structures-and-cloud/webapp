@@ -82,6 +82,7 @@ jobs:
           LTID=$(aws ec2 describe-launch-templates --launch-template-name loadbalancing-launch-template | jq -r '.LaunchTemplates[].LaunchTemplateId')
           aws ec2 create-launch-template-version --launch-template-id $LTID --version-description WebVersion2 --source-version 1 --launch-template-data "ImageId=${{ env.AMI_ID }}"
 
+      # Step 4: Update Autoscaling Group
       - name: Update Autoscaling Group
         run: |
             aws autoscaling update-auto-scaling-group --auto-scaling-group-name loadbalancing-asg --launch-template LaunchTemplateId=$LTID,Version='$Latest'
