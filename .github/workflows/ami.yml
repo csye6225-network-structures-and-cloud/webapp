@@ -72,7 +72,7 @@ jobs:
           echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
 
       # Step 3: Print Environment Variables
-      - name: Print Environment Variables
+      - name: Print AMI ID Environment Variables
         run: |
           echo "AMI ID: ${{ env.AMI_ID }}"
 
@@ -81,11 +81,19 @@ jobs:
         run: |
           LTID=$(aws ec2 describe-launch-templates --launch-template-name asg-launch-template | jq -r '.LaunchTemplates[].LaunchTemplateId')
           aws ec2 create-launch-template-version --launch-template-id $LTID --version-description WebVersion2 --source-version 1 --launch-template-data "ImageId=${{ env.AMI_ID }}"
+          echo "Launch Template ID: $LTID"
+          echo "LTID=$LTID" >> $GITHUB_ENV
+
+
+      - name: Print LTID Environment Variables
+        run: |
+          echo "LTID: ${{ env.LTID }}"
 
       # Step 4: Update Autoscaling Group
       - name: Update Autoscaling Group
         run: |
-            aws autoscaling update-auto-scaling-group --auto-scaling-group-name asg-group --launch-template LaunchTemplateId=$LTID,Version='$Latest'
+            aws autoscaling update-auto-scaling-group --auto-scaling-group-name asg-group --launch-template LaunchTemplateId=${{ env.LTID }},Version='$Latest'
+
 
       - name: Start Instance Refresh
         run: |
