@@ -84,6 +84,7 @@ jobs:
           echo "Launch Template ID: $LTID"
           echo "LTID=$LTID" >> $GITHUB_ENV
 
+
       - name: Print LTID Environment Variables
         run: |
           echo "LTID: ${{ env.LTID }}"
@@ -92,6 +93,7 @@ jobs:
       - name: Update Autoscaling Group
         run: |
             aws autoscaling update-auto-scaling-group --auto-scaling-group-name asg-group --launch-template LaunchTemplateId=${{ env.LTID }},Version='$Latest'
+
 
       - name: Start Instance Refresh
         run: |
