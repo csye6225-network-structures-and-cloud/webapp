@@ -79,24 +79,24 @@ jobs:
       # Step 4: Create New Launch Template Version with Latest AMI
       - name: Create Launch Template Version
         run: |
-          LTID=$(aws ec2 describe-launch-templates --launch-template-name loadbalancing-launch-template | jq -r '.LaunchTemplates[].LaunchTemplateId')
+          LTID=$(aws ec2 describe-launch-templates --launch-template-name asg-launch-template | jq -r '.LaunchTemplates[].LaunchTemplateId')
           aws ec2 create-launch-template-version --launch-template-id $LTID --version-description WebVersion2 --source-version 1 --launch-template-data "ImageId=${{ env.AMI_ID }}"
 
       # Step 4: Update Autoscaling Group
       - name: Update Autoscaling Group
         run: |
-            aws autoscaling update-auto-scaling-group --auto-scaling-group-name loadbalancing-asg --launch-template LaunchTemplateId=$LTID,Version='$Latest'
+            aws autoscaling update-auto-scaling-group --auto-scaling-group-name asg-group --launch-template LaunchTemplateId=$LTID,Version='$Latest'
 
       - name: Start Instance Refresh
         run: |
-            REFRESH_ID=$(aws autoscaling start-instance-refresh --auto-scaling-group-name loadbalancing-asg --output json | jq -r '.InstanceRefreshId')
+            REFRESH_ID=$(aws autoscaling start-instance-refresh --auto-scaling-group-name asg-group --output json | jq -r '.InstanceRefreshId')
             echo "Instance Refresh ID: $REFRESH_ID"
             echo "REFRESH_ID=$REFRESH_ID" >> $GITHUB_ENV
 
       - name: Wait for Instance Refresh Completion
         run: |
             while true; do
-              STATUS=$(aws autoscaling describe-instance-refreshes --auto-scaling-group-name loadbalancing-asg --instance-refresh-ids ${{ env.REFRESH_ID }} --output json | jq -r '.InstanceRefreshes[0].Status')
+              STATUS=$(aws autoscaling describe-instance-refreshes --auto-scaling-group-name asg-group --instance-refresh-ids ${{ env.REFRESH_ID }} --output json | jq -r '.InstanceRefreshes[0].Status')
               echo "Refresh Status: $STATUS"
               if [ "$STATUS" = "Successful" ] || [ "$STATUS" = "Failed" ]; then
                 break
