@@ -57,6 +57,56 @@ jobs:
         working-directory: ./AMI
         run: packer build --var-file=ami.pkrvars.hcl ami.pkr.hcl
 
+      - name: Configure AWS DEMO
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.DEMO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEMO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Step 2: Get the Latest AMI ID
+      - name: Retrieve Latest AMI ID
+        working-directory: ./AMI
+        run: |
+          AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2)
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
+
+      # Step 3: Print Environment Variables
+      - name: Print Environment Variables
+        run: |
+          echo "AMI ID: ${{ env.AMI_ID }}"
+
+      # Step 4: Create New Launch Template Version with Latest AMI
+      - name: Create Launch Template Version
+        run: |
+          LTID=$(aws ec2 describe-launch-templates --launch-template-name loadbalancing-launch-template | jq -r '.LaunchTemplates[].LaunchTemplateId')
+          aws ec2 create-launch-template-version --launch-template-id $LTID --version-description WebVersion2 --source-version 1 --launch-template-data "ImageId=${{ env.AMI_ID }}"
+
+      - name: Update Autoscaling Group
+        run: |
+            aws autoscaling update-auto-scaling-group --auto-scaling-group-name loadbalancing-asg --launch-template LaunchTemplateId=$LTID,Version='$Latest'
+
+      - name: Start Instance Refresh
+        run: |
+            REFRESH_ID=$(aws autoscaling start-instance-refresh --auto-scaling-group-name loadbalancing-asg --output json | jq -r '.InstanceRefreshId')
+            echo "Instance Refresh ID: $REFRESH_ID"
+            echo "REFRESH_ID=$REFRESH_ID" >> $GITHUB_ENV
+
+      - name: Wait for Instance Refresh Completion
+        run: |
+            while true; do
+              STATUS=$(aws autoscaling describe-instance-refreshes --auto-scaling-group-name loadbalancing-asg --instance-refresh-ids ${{ env.REFRESH_ID }} --output json | jq -r '.InstanceRefreshes[0].Status')
+              echo "Refresh Status: $STATUS"
+              if [ "$STATUS" = "Successful" ] || [ "$STATUS" = "Failed" ]; then
+                break
+              fi
+              sleep 30
+            done
+            if [ "$STATUS" = "Failed" ]; then
+              echo "Instance refresh failed"
+              exit 1
+            fi
+
 #      - name: Extract AMI ID from manifest
 #        working-directory: ./AMI
 #        run: |
