@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
 @ControllerAdvice
 @RestController
-@RequestMapping("/v2/assignments")
+@RequestMapping("/v1/assignments")
 public class AssignmentController {
 
     @Autowired
