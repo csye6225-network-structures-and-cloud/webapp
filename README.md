@@ -65,6 +65,10 @@
 ### AMI creation using Packer 
 ### Systemd creation
 
+### For demo environment, Requested SSL certificate from Namecheap, imported it into AWS Certificate Manager from CLI, and then configured load balancer to use the imported certificate.
+
+- aws acm import-certificate --certificate fileb://demo_supriyavallarapu_me/demo_supriyavallarapu_me.crt --private-key fileb://private.key --profile=demo
+
 
 
 
