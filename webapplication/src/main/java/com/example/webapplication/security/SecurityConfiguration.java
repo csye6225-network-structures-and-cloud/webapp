@@ -62,7 +62,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 // Require authentication for Assignment APIs
-                                .requestMatchers(new MvcRequestMatcher(null, "/v1/assignments/**")).fullyAuthenticated()
+                                .requestMatchers(new MvcRequestMatcher(null, "/v2/assignments/**")).fullyAuthenticated()
                                 .anyRequest().permitAll() // Allow other requests
                 )
                 .httpBasic(withDefaults())
